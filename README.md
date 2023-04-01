@@ -1,11 +1,17 @@
-# PlotNeuralNet
+# PlotNeuralNet - Zh_CN 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2526396.svg)](https://doi.org/10.5281/zenodo.2526396)
 
-Latex code for drawing neural networks for reports and presentation. Have a look into examples to see how they are made. Additionally, lets consolidate any improvements that you make and fix any bugs to help more people with this code.
+该仓库是PlotNeuralNet的中文仓库。
 
-## Examples
+**PlotNeuralNet**通过LaTex、Python、Shell三种方式辅助绘制神经网络。您可以查看示例以了解它们是如何制作的。此外，让我们整合您所做的任何改进并修复任何错误，以帮助更多的人使用此代码。
 
-Following are some network representations:
++ `python`脚本用于进行个人神经网络的搭建
++ `shell`脚本作为中间件，串联python与LaTex的协作工作
++  `LaTex`用于绘制优美的神经网络结构图。
+
+## 神经网络示例图
+
+下面是一些用**PlotNeuralNet**绘制的神经网络结构图的示例：
 
 <p align="center"><img  src="https://user-images.githubusercontent.com/17570785/50308846-c2231880-049c-11e9-8763-3daa1024de78.png" width="85%" height="85%"></p>
 <h6 align="center">FCN-8 (<a href="https://www.overleaf.com/read/kkqntfxnvbsk">view on Overleaf</a>)</h6>
@@ -18,84 +24,62 @@ Following are some network representations:
 <p align="center"><img  src="https://user-images.githubusercontent.com/17570785/50308911-03b3c380-049d-11e9-92d9-ce15669017ad.png" width="85%" height="85%"></p>
 <h6 align="center">Holistically-Nested Edge Detection (<a href="https://www.overleaf.com/read/jxhnkcnwhfxp">view on Overleaf</a>)</h6>
 
-## Getting Started
-1. Install the following packages on Ubuntu.
-    * Ubuntu 16.04
-        ```
-        sudo apt-get install texlive-latex-extra
-        ```
+## 快速开始-Windows
 
-    * Ubuntu 18.04.2
-Base on this [website](https://gist.github.com/rain1024/98dd5e2c6c8c28f9ea9d), please install the following packages.
-        ```
-        sudo apt-get install texlive-latex-base
-        sudo apt-get install texlive-fonts-recommended
-        sudo apt-get install texlive-fonts-extra
-        sudo apt-get install texlive-latex-extra
-        ```
+下面是针对windows用户的启动方案
 
-    * Windows
-    1. Download and install [MikTeX](https://miktex.org/download).
-    2. Download and install bash runner on Windows, recommends [Git bash](https://git-scm.com/download/win) or Cygwin(https://www.cygwin.com/)
+### 1. 前置设置
++ 确保您的电脑上安装了LaTex。官方仓库推荐安装 [MikTeX](https://miktex.org/download) ，不过本人仅仅安装了texlive就可以正常运行~
++ 确保您的Windows操作系统具有运行Shell脚本的环境。推荐使用[Git bash](https://git-scm.com/download/win) 或者 [Cygwin](https://www.cygwin.com/)
 
-2. Execute the example as followed.
-    ```
-    cd pyexamples/
-    bash ../tikzmake.sh test_simple
-    ```
+### 2. 克隆本仓库
+您可以使用 `git clone https://github.com/SamuraiBUPT/PlotNeuralNet-Windows.git` 来完成仓库的克隆操作。
 
-## TODO
+### 3. 跟随以下示例了解如何运行~
++ 将克隆后的项目文件夹用IDE打开
++ 启用bash环境（如果您已经有Git Bash，并且配置好了环境变量，您可以直接在终端输入`bash` 或者`sh` 进入shell脚本的运行环境。您会看见终端前方的指示符从windows系统的黑白变成了其他颜色。
++ 进入`pyexamples`路径，（`cd pyexamples/`）
++ 输入`bash ../tikzmake.sh test_simple` 命令来查看您的第一份神经网络图的绘制结果。
 
-- [X] Python interface
-- [ ] Add easy legend functionality
-- [ ] Add more layer shapes like TruncatedPyramid, 2DSheet etc
-- [ ] Add examples for RNN and likes.
+## 解释
+如您所见，当您在pyexamples路径下创建好自己的python脚本后，仅需要在该路径下调用上一层路径的tikzmake.sh脚本来运行即可。
 
-## Latex usage
+`bash`指令是在指定Shell脚本的编译器
 
-See [`examples`](examples) directory for usage.
+`../tikzmake.sh`是在指定：执行上一层目录下的`tikzmake.sh`脚本
 
-## Python usage
+`test_simple`是当前路径下的一份python文件的文件名，**注意不需要加上`.py`的后缀！**。在这里，这个文件名会作为shell脚本的参数传入，决定了shell脚本执行的目标是哪份文件。
 
-First, create a new directory and a new Python file:
 
-    $ mkdir my_project
-    $ cd my_project
-    vim my_arch.py
+# 用法
+## 常规的初始化
+一份常规的组织神经网络的python代码，应该有如下骨架：
 
-Add the following code to your new file:
-
-```python
+```angular2html
 import sys
+
 sys.path.append('../')
 from pycore.tikzeng import *
 
 # defined your arch
 arch = [
-    to_head( '..' ),
+    to_head('..'),
     to_cor(),
     to_begin(),
-    to_Conv("conv1", 512, 64, offset="(0,0,0)", to="(0,0,0)", height=64, depth=64, width=2 ),
-    to_Pool("pool1", offset="(0,0,0)", to="(conv1-east)"),
-    to_Conv("conv2", 128, 64, offset="(1,0,0)", to="(pool1-east)", height=32, depth=32, width=2 ),
-    to_connection( "pool1", "conv2"),
-    to_Pool("pool2", offset="(0,0,0)", to="(conv2-east)", height=28, depth=28, width=1),
-    to_SoftMax("soft1", 10 ,"(3,0,0)", "(pool1-east)", caption="SOFT"  ),
-    to_connection("pool2", "soft1"),
+
+    // your architecture here...
+
     to_end()
-    ]
+]
+
 
 def main():
     namefile = str(sys.argv[0]).split('.')[0]
-    to_generate(arch, namefile + '.tex' )
+    to_generate(arch, namefile + '.tex')
+
 
 if __name__ == '__main__':
     main()
 ```
 
-Now, run the program as follows:
-
-    bash ../tikzmake.sh my_arch
-
-
-
+如您所见，其实唯一需要您进行改动的，是`arch` 列表里面的内容，在`to_begin()` 和 `to_end()` 函数之间的部分。
