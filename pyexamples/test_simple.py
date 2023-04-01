@@ -63,10 +63,19 @@ arch2 = [
     to_end()
 ]
 
+arch3 = [
+    to_head('..'),
+    to_cor(),
+    to_begin(),
+    to_ConvConvRelu("conv1", s_filer=256, n_filer=(0, 4), offset="(0,0,0)",
+                    to="(0,0,0)", height=64, depth=64, width=(0, 2), caption="Conv1"),
+    to_end()
+]
+
 
 def main():
     namefile = str(sys.argv[0]).split('.')[0]
-    to_generate(arch2, namefile + '.tex')
+    to_generate(arch3, namefile + '.tex')
 
 
 if __name__ == '__main__':
