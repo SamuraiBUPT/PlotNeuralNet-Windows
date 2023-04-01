@@ -9,7 +9,7 @@ arch = [
     to_cor(),
     to_begin(),
 
-    to_Conv("conv1", 512, 64, offset="(0,0,0)", to="(0,0,0)", height=64, depth=64, width=2),
+    to_Conv("conv1", s_filer=512, n_filer=64, offset="(0,0,0)", to="(0,0,0)", height=64, depth=64, width=2),
     to_Pool("pool1", offset="(0,0,0)", to="(conv1-east)"),
     to_Conv("conv2", 128, 64, offset="(1,0,0)", to="(pool1-east)", height=32, depth=32, width=2),
     to_connection("pool1", "conv2"),
