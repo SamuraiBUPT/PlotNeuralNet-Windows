@@ -1,4 +1,3 @@
-
 import os
 
 def to_head( projectpath ):

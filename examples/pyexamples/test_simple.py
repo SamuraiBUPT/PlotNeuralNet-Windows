@@ -75,7 +75,7 @@ arch3 = [
 
 def main():
     namefile = str(sys.argv[0]).split('.')[0]
-    to_generate(arch3, namefile + '.tex')
+    to_generate(arch2, namefile + '.tex')
 
 
 if __name__ == '__main__':
