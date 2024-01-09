@@ -1,5 +1,4 @@
 # PlotNeuralNet - Zh_CN 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2526396.svg)](https://doi.org/10.5281/zenodo.2526396)
 
 该仓库是PlotNeuralNet的中文仓库。
 

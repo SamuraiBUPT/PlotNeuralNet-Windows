@@ -1,0 +1,4 @@
+{
+    "pylint.args": ["--disable=E1101",
+                    "--disable=W,C"]
+}

@@ -2,7 +2,7 @@
 *.log
 *.gz
 
-__pycache__
+__pycache__/
 books
 project
 
@@ -85,3 +85,8 @@ venv.bak/
 .mypy_cache/
 
 .idea
+
+*.pyc 
+
+dataset/
+model_ckpt/

@@ -2,19 +2,16 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from typing import Any, Dict, Callable
+from typing import Any, Dict, Callable, List
 
 class TorchPlot:
     def __init__(self, 
                  config: Dict):
         self.config = config
-        self.forward_layers = []
-        self.namelib: Dict[str, int] = {}
         
-    def _forward_hook(self, layer_name: str) -> Callable:
-          
+    def _forward_hook(self, layer_name: str, forward_layers, namelib) -> Callable:
         # define the register hook API function
-        def hook(module, input, output):
+        def hook(module, input, output, forward_layers=forward_layers, namelib=namelib):
             this_layer = {}
             print(f"Forward pass through layer: {layer_name} ({module.__class__.__name__})")
             this_layer['name'] = layer_name
@@ -47,33 +44,36 @@ class TorchPlot:
             print()
         
             # check before insert to avoid duplicate name
-            for layer in self.forward_layers:
+            for layer in forward_layers:
                 if layer['name'] == layer_name:
-                    if layer_name in self.namelib:
-                        self.namelib[layer_name] += 1
+                    if layer_name in namelib:
+                        namelib[layer_name] += 1
                     else:
-                        self.namelib[layer_name] = 1
+                        namelib[layer_name] = 1
                         
-                    this_layer['name'] = f"{layer_name}_{self.namelib[layer_name]}"
-            self.forward_layers.append(this_layer)
+                    this_layer['name'] = f"{layer_name}_{namelib[layer_name]}"
+            forward_layers.append(this_layer)
         
         return hook
 
-    def _invoke_net_forward(self, net, input_tensor):
-        self.forward_layers.clear()
-        self.namelib.clear()
-        
+    def _invoke_net_forward(self, net, input_tensor, forward_layers, namelib):
         for name, layer in net.named_children():
             if isinstance(layer, nn.Module):
-                layer.register_forward_hook(self._forward_hook(name))
-        y = net(input_tensor)
+                layer.register_forward_hook(self._forward_hook(name, forward_layers, namelib))
+        with torch.no_grad():
+            y = net(input_tensor)
         
         
-    def plot(self, net, input_tensor):
-        self._invoke_net_forward(net, input_tensor)
+    def analyze_net(self, net, input_tensor) -> List[Dict]:
+        assert isinstance(net, nn.Module), "net must be a nn.Module"
         
-        # TODO: finish the plot function with latex, now we just print the forward pass
-        for idx, item in enumerate(self.forward_layers):
+        print("================ Analyzing ===================")
+        forward_layers: List[Dict] = []
+        namelib: Dict[str, int] = {}
+        
+        self._invoke_net_forward(net, input_tensor, forward_layers, namelib)
+        
+        for idx, item in enumerate(forward_layers):
             print(f"layer: {idx}")
             if 'output_shape' not in item or 'input_shape' not in item:
                 raise Exception(f"layer {idx} has no output_shape/input_shape")
@@ -81,3 +81,7 @@ class TorchPlot:
                 for k, v in item.items():
                     print(k, ":", v)
                 print()
+                
+        # TODO: record the residual connection part, not implemented yet.
+        print("================= Finished ===================")
+        return forward_layers
