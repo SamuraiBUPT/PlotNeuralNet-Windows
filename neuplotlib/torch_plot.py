@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from typing import Any, Dict, Callable, List
+import os
 
 class TorchPlot:
     def __init__(self, 
@@ -64,14 +65,18 @@ class TorchPlot:
             y = net(input_tensor)
         
         
-    def analyze_net(self, net, input_tensor) -> List[Dict]:
+    def analyze_net(self, 
+                    net: nn.Module, 
+                    input_tensor: torch.Tensor) -> List[Dict]:
         assert isinstance(net, nn.Module), "net must be a nn.Module"
+        assert next(net.parameters()).device == input_tensor.device, "net and input_tensor must be on the same device"
         
         print("================ Analyzing ===================")
-        forward_layers: List[Dict] = []
-        namelib: Dict[str, int] = {}
+        net.eval()
+        forward_layers: List[Dict] = [] # record the forward layers, each dict records the layer info
+        namelib: Dict[str, int] = {}    # record the name of each layer as a counter, to avoid duplicate name
         
-        self._invoke_net_forward(net, input_tensor, forward_layers, namelib)
+        self._invoke_net_forward(net, input_tensor, forward_layers, namelib)    # forward job
         
         for idx, item in enumerate(forward_layers):
             print(f"layer: {idx}")
@@ -82,6 +87,26 @@ class TorchPlot:
                     print(k, ":", v)
                 print()
                 
-        # TODO: record the residual connection part, not implemented yet.
         print("================= Finished ===================")
+        # TODO: record the residual connection part, not implemented yet.
+        
+        """
+            Note: It's actually not finished yet! We need to convert the `forward_layers` list of dicts 
+            to the `arch`, for further generation.
+            
+            Now we temperarily return the `forward_layers`.
+        """
+        
         return forward_layers
+    
+    def generate(self, arch: List[str], filename: str):
+        assert filename.endswith(".tex"), "filename must end with .tex"
+        # first we generate the tex file
+        with open(filename, "w") as f: 
+            for c in arch:
+                f.write(c)
+        
+        # then we will generate the pdf file
+        os.system(f"pdflatex {filename}")
+        os.system(f"rm {filename[:-4]}.aux {filename[:-4]}.log")
+        

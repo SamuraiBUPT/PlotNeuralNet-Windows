@@ -1,7 +1,7 @@
 import sys
 
 sys.path.append('../')
-from pycore.tikzeng import *
+from neuplotlib import *
 
 # defined your arch
 arch = [
@@ -75,7 +75,7 @@ arch3 = [
 
 def main():
     namefile = str(sys.argv[0]).split('.')[0]
-    to_generate(arch2, namefile + '.tex')
+    generate_tex(arch2, namefile + '.tex')
 
 
 if __name__ == '__main__':

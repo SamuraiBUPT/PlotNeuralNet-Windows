@@ -90,3 +90,5 @@ venv.bak/
 
 dataset/
 model_ckpt/
+.vscode/
+*.egg-info/

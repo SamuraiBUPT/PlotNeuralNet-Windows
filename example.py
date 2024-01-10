@@ -95,12 +95,14 @@ def eval(model, test_loader, device):
         print(f'Accuracy of the network on the 10000 test images: {100 * correct / total} %')
     print("Evaluation complete")
     
+from neuplotlib import TorchPlot
+    
 def test_infer(model, test_loader, device):
     model.eval()
     model.load_state_dict(torch.load('./model_ckpt/model.pth'))
     model.to(device)
     # Test the model
-    from neuplotlib import TorchPlot
+    
     with torch.no_grad():
         for images, labels in test_loader:
             images = images.to(device)
@@ -113,6 +115,65 @@ def test_infer(model, test_loader, device):
             # _, predicted = torch.max(outputs.data, 1)
             # print(predicted)
             break
+        
+def generate_pdf(arch, filename):
+    from neuplotlib import generate_tex
+    generate_tex(arch, filename)
+    import os
+    os.system(f"pdflatex {filename}")
+    os.system(f"rm {filename[:-4]}.aux {filename[:-4]}.log")
 
 if __name__ == '__main__':
-    test_infer(model, test_loader, device)
+    # test_infer(model, test_loader, device)
+    from neuplotlib import *
+    arch2 = [
+        to_head(),
+        to_cor(),
+        to_begin(),
+
+        to_Conv(name="conv1", s_filer=64, n_filer=3, offset="(0,0,0)",
+                to="(0,0,0)", height=64, depth=64, width=2, caption="Conv1"),
+        to_Pool("pool1", offset="(1,0,0)", to="(conv1-east)",
+                height=48, depth=48, width=2),
+        to_connection("conv1", "pool1"),
+        to_Conv(name="conv2", s_filer=128, n_filer=64, offset="(0,0,0)",
+                to="(pool1-east)", height=48, depth=48, width=3, caption="Conv2"),
+
+        to_Pool("pool2", offset="(1,0,0)", to="(conv2-east)",
+                height=32, depth=32, width=4, caption="MaxPooling"),
+        to_connection("conv2", "pool2"),
+
+        to_Conv(name="conv3", s_filer=1, n_filer=128 * 8 * 8 * 8, offset="(2,0,0)",
+                to="(pool2-east)", height=2, depth=2, width=10, caption="Flatten"),
+        to_connection("pool2", "conv3"),
+
+        # fc1
+        to_SoftMax(name='fc1', s_filer=128 * 8 * 8 * 8, offset="(4,0,0)", to="(conv3-east)", width=1.5, height=1.5,
+                depth=100, opacity=0.8, caption='FC1'),
+        to_connection("conv3", "fc1"),
+        # fc2
+        to_SoftMax(name='fc2', s_filer=512, offset="(1.5,0,0)", to="(fc1-east)", width=1.5, height=1.5, depth=100,
+                opacity=0.8, caption='FC2'),
+        to_connection("fc1", "fc2"),
+        # fc1
+        to_SoftMax(name='fc3', s_filer=256, offset="(1.5,0,0)", to="(fc2-east)", width=1.5, height=1.5, depth=70,
+                opacity=0.8, caption='FC3'),
+        to_connection("fc2", "fc3"),
+        to_end()
+    ]
+    filename = 'test.tex'
+    
+    model.eval()
+    model.load_state_dict(torch.load('./model_ckpt/model.pth'))
+    model.to(device)
+    # Test the model
+    
+    tp = TorchPlot(config={})
+    with torch.no_grad():
+        for images, labels in test_loader:
+            images = images.to(device)
+            
+            # test
+            tp.analyze_net(model, images)
+            break
+    tp.generate(arch2, filename)
