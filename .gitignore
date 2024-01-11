@@ -92,3 +92,6 @@ dataset/
 model_ckpt/
 .vscode/
 *.egg-info/
+
+test.pdf
+test.tex

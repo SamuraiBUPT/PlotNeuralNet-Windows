@@ -9,30 +9,29 @@ import os
 
 current_path = os.path.split(os.path.realpath(__file__))[0]
 
-def to_head():
-    print(current_path)
-    pathlayers = os.path.join(current_path, 'layers/' ).replace('\\', '/')
+def to_head() -> str:
+    layers_path = os.path.join(current_path, 'layers/' ).replace('\\', '/')
     return r"""
 \documentclass[border=8pt, multi, tikz]{standalone} 
 \usepackage{import}
-\subimport{"""+ pathlayers + r"""}{init}
+\subimport{"""+ layers_path + r"""}{init}
 \usetikzlibrary{positioning}
 \usetikzlibrary{3d} %for including external image 
 """
 
-def to_cor():
+def to_color() -> str:
     return r"""
-\def\ConvColor{rgb:yellow,5;red,2.5;white,5}
-\def\ConvReluColor{rgb:yellow,5;red,5;white,5}
-\def\PoolColor{rgb:red,1;black,0.3}
-\def\UnpoolColor{rgb:blue,2;green,1;black,0.3}
-\def\FcColor{rgb:blue,5;red,2.5;white,5}
-\def\FcReluColor{rgb:blue,5;red,5;white,4}
-\def\SoftmaxColor{rgb:magenta,5;black,7}   
-\def\SumColor{rgb:blue,5;green,15}
+\def\ConvColor{rgb:yellow, 5; red, 2.5; white, 5}
+\def\ConvReluColor{rgb:yellow, 5; red, 5; white,5}
+\def\PoolColor{rgb:red, 1; black, 0.3}
+\def\UnpoolColor{rgb:blue, 2; green, 1; black, 0.3}
+\def\FcColor{rgb:blue, 5; red, 2.5; white, 5}
+\def\FcReluColor{rgb:blue, 5; red, 5; white, 4}
+\def\SoftmaxColor{rgb:magenta, 5; black, 7}   
+\def\SumColor{rgb:blue, 5; green, 15}
 """
 
-def to_begin():
+def to_begin() -> str:
     return r"""
 \newcommand{\copymidarrow}{\tikz \draw[-Stealth,line width=0.8mm,draw={rgb:blue,4;red,1;green,1;black,3}] (-0.3,0) -- ++(0.3,0);}
 
@@ -47,28 +46,24 @@ def to_input(pathfile,
              to='(-3,0,0)', 
              width=8, 
              height=8, 
-             name="temp" ):
+             name="temp") -> str:
     return r"""
 \node[canvas is zy plane at x=0] (""" + name + """) at """+ to +""" {\includegraphics[width="""+ str(width)+"cm"+""",height="""+ str(height)+"cm"+"""]{"""+ pathfile +"""}};
 """
 
 # Conv
 def to_Conv(name, 
-            s_filer=256, 
-            n_filer=64, 
-            offset="(0,0,0)", 
-            to="(0,0,0)", 
-            width=1, 
-            height=40, 
-            depth=40, 
-            caption=" "):
+            z_label=256, x_label=64, 
+            base="(0,0,0)", offset="(0,0,0)", 
+            width=1, height=40, depth=40, 
+            caption=" ") -> str:
     return r"""
-\pic[shift={"""+ offset +"""}] at """+ to +""" 
+\pic[shift={"""+ offset +"""}] at """+ base +""" 
     {Box={
         name=""" + name +""",
         caption="""+ caption +r""",
-        xlabel={{"""+ str(n_filer) +""", }},
-        zlabel="""+ str(s_filer) +""",
+        xlabel={{"""+ str(x_label) +""", }},
+        zlabel="""+ str(z_label) +r""",
         fill=\ConvColor,
         height="""+ str(height) +""",
         width="""+ str(width) +""",
@@ -81,21 +76,17 @@ def to_Conv(name,
 # Conv,Conv,relu
 # Bottleneck
 def to_ConvConvRelu(name, 
-                    s_filer=256, 
-                    n_filer=(64,64), 
-                    offset="(0,0,0)", 
-                    to="(0,0,0)", 
-                    width=(2,2), 
-                    height=40, 
-                    depth=40, 
-                    caption=" "):
+                    z_label=256, x_label=(64,64), 
+                    base="(0,0,0)", offset="(0,0,0)", 
+                    width=(2,2), height=40, depth=40, 
+                    caption=" ") -> str:
     return r"""
-\pic[shift={ """+ offset +""" }] at """+ to +""" 
+\pic[shift={ """+ offset +""" }] at """+ base +""" 
     {RightBandedBox={
         name="""+ name +""",
         caption="""+ caption +""",
-        xlabel={{ """+ str(n_filer[0]) +""", """+ str(n_filer[1]) +""" }},
-        zlabel="""+ str(s_filer) +""",
+        xlabel={{ """+ str(x_label[0]) +""", """+ str(x_label[1]) +""" }},
+        zlabel="""+ str(z_label) +""",
         fill=\ConvColor,
         bandfill=\ConvReluColor,
         height="""+ str(height) +""",
@@ -108,15 +99,12 @@ def to_ConvConvRelu(name,
 
 # Pool
 def to_Pool(name, 
-            offset="(0,0,0)", 
-            to="(0,0,0)", 
-            width=1, 
-            height=32, 
-            depth=32, 
+            base="(0,0,0)", offset="(0,0,0)", 
+            width=1, height=32, depth=32, 
             opacity=0.5, 
-            caption=" "):
+            caption=" ") -> str:
     return r"""
-\pic[shift={ """+ offset +""" }] at """+ to +""" 
+\pic[shift={ """+ offset +""" }] at """+ base +""" 
     {Box={
         name="""+name+""",
         caption="""+ caption +r""",
@@ -131,15 +119,14 @@ def to_Pool(name,
 
 # unpool4, 
 def to_UnPool(name, 
-              offset="(0,0,0)", 
-              to="(0,0,0)", 
+              base="(0,0,0)", offset="(0,0,0)", 
               width=1, 
               height=32, 
               depth=32, 
               opacity=0.5, 
-              caption=" "):
+              caption=" ") -> str:
     return r"""
-\pic[shift={ """+ offset +""" }] at """+ to +""" 
+\pic[shift={ """+ offset +""" }] at """+ base +""" 
     {Box={
         name="""+ name +r""",
         caption="""+ caption +r""",
@@ -154,22 +141,18 @@ def to_UnPool(name,
 
 
 def to_ConvRes(name, 
-               s_filer=256, 
-               n_filer=64, 
-               offset="(0,0,0)", 
-               to="(0,0,0)", 
-               width=6, 
-               height=40, 
-               depth=40, 
+               x_label=64, z_label=256, 
+               base="(0,0,0)", offset="(0,0,0)", 
+               width=6, height=40, depth=40, 
                opacity=0.2, 
-               caption=" " ):
+               caption=" " ) -> str:
     return r"""
-\pic[shift={ """+ offset +""" }] at """+ to +""" 
+\pic[shift={ """+ offset +""" }] at """+ base +""" 
     {RightBandedBox={
         name="""+ name + """,
         caption="""+ caption + """,
-        xlabel={{ """+ str(n_filer) + """, }},
-        zlabel="""+ str(s_filer) +r""",
+        xlabel={{ """+ str(x_label) + """, }},
+        zlabel="""+ str(z_label) +r""",
         fill={rgb:white,1;black,3},
         bandfill={rgb:white,1;black,2},
         opacity="""+ str(opacity) +""",
@@ -183,19 +166,16 @@ def to_ConvRes(name,
 
 # ConvSoftMax
 def to_ConvSoftMax(name, 
-                   s_filer=40, 
-                   offset="(0,0,0)", 
-                   to="(0,0,0)", 
-                   width=1, 
-                   height=40, 
-                   depth=40, 
-                   caption=" " ):
+                   z_label=40, 
+                   base="(0,0,0)", offset="(0,0,0)", 
+                   width=1, height=40, depth=40, 
+                   caption=" ") -> str:
     return r"""
-\pic[shift={"""+ offset +"""}] at """+ to +""" 
+\pic[shift={"""+ offset +"""}] at """+ base +""" 
     {Box={
         name=""" + name +""",
         caption="""+ caption +""",
-        zlabel="""+ str(s_filer) +""",
+        zlabel="""+ str(z_label) +""",
         fill=\SoftmaxColor,
         height="""+ str(height) +""",
         width="""+ str(width) +""",
@@ -206,21 +186,18 @@ def to_ConvSoftMax(name,
 
 # SoftMax
 def to_SoftMax(name, 
-               s_filer=10, 
-               offset="(0,0,0)", 
-               to="(0,0,0)", 
-               width=1.5, 
-               height=3, 
-               depth=25, 
+               z_label=10, 
+               base="(0,0,0)", offset="(0,0,0)", 
+               width=1.5, height=3, depth=25, 
                opacity=0.8, 
-               caption=" " ):
+               caption=" " ) -> str:
     return r"""
-\pic[shift={"""+ offset +"""}] at """+ to +""" 
+\pic[shift={"""+ offset +"""}] at """+ base +""" 
     {Box={
         name=""" + name +""",
         caption="""+ caption +""",
         xlabel={{" ","dummy"}},
-        zlabel="""+ str(s_filer) +""",
+        zlabel="""+ str(z_label) +""",
         fill=\SoftmaxColor,
         opacity="""+ str(opacity) +""",
         height="""+ str(height) +""",
@@ -231,12 +208,11 @@ def to_SoftMax(name,
 """
 
 def to_Sum(name, 
-           offset="(0,0,0)", 
-           to="(0,0,0)", 
+           base="(0,0,0)", offset="(0,0,0)", 
            radius=2.5, 
-           opacity=0.6):
+           opacity=0.6) -> str:
     return r"""
-\pic[shift={"""+ offset +"""}] at """+ to +""" 
+\pic[shift={"""+ offset +"""}] at """+ base +""" 
     {Ball={
         name=""" + name +""",
         fill=\SumColor,
@@ -248,24 +224,22 @@ def to_Sum(name,
 """
 
 
-def to_connection(of, to):
+def to_connection(src, dest) -> str:
     return r"""
-\draw [connection]  ("""+of+"""-east)    -- node {\midarrow} ("""+to+"""-west);
+\draw [connection]  ("""+src+"""-east)    -- node {\midarrow} ("""+dest+"""-west);
 """
 
-def to_skip(of, 
-            to, 
-            pos=1.25):
+def to_skip(src, dest, pos=1.25) -> str:
     return r"""
-\path ("""+ of +"""-southeast) -- ("""+ of +"""-northeast) coordinate[pos="""+ str(pos) +"""] ("""+ of +"""-top) ;
-\path ("""+ to +"""-south)  -- ("""+ to +"""-north)  coordinate[pos="""+ str(pos) +"""] ("""+ to +"""-top) ;
-\draw [copyconnection]  ("""+of+"""-northeast)  
--- node {\copymidarrow}("""+of+"""-top)
--- node {\copymidarrow}("""+to+"""-top)
--- node {\copymidarrow} ("""+to+"""-north);
+\path ("""+ src +"""-southeast) -- ("""+ src +"""-northeast) coordinate[pos="""+ str(pos) +"""] ("""+ src +"""-top) ;
+\path ("""+ dest +"""-south)  -- ("""+ dest +"""-north)  coordinate[pos="""+ str(pos) +"""] ("""+ dest +"""-top) ;
+\draw [copyconnection]  ("""+src+"""-northeast)  
+-- node {\copymidarrow}("""+src+"""-top)
+-- node {\copymidarrow}("""+dest+"""-top)
+-- node {\copymidarrow} ("""+dest+"""-north);
 """
 
-def to_end():
+def to_end() -> str:
     return r"""
 \end{tikzpicture}
 \end{document}

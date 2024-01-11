@@ -5,14 +5,14 @@
 \usetikzlibrary{positioning}
 \usetikzlibrary{3d} %for including external image 
 
-\def\ConvColor{rgb:yellow,5;red,2.5;white,5}
-\def\ConvReluColor{rgb:yellow,5;red,5;white,5}
-\def\PoolColor{rgb:red,1;black,0.3}
-\def\UnpoolColor{rgb:blue,2;green,1;black,0.3}
-\def\FcColor{rgb:blue,5;red,2.5;white,5}
-\def\FcReluColor{rgb:blue,5;red,5;white,4}
-\def\SoftmaxColor{rgb:magenta,5;black,7}   
-\def\SumColor{rgb:blue,5;green,15}
+\def\ConvColor{rgb:yellow, 5; red, 2.5; white, 5}
+\def\ConvReluColor{rgb:yellow, 5; red, 5; white,5}
+\def\PoolColor{rgb:red, 1; black, 0.3}
+\def\UnpoolColor{rgb:blue, 2; green, 1; black, 0.3}
+\def\FcColor{rgb:blue, 5; red, 2.5; white, 5}
+\def\FcReluColor{rgb:blue, 5; red, 5; white, 4}
+\def\SoftmaxColor{rgb:magenta, 5; black, 7}   
+\def\SumColor{rgb:blue, 5; green, 15}
 
 \newcommand{\copymidarrow}{\tikz \draw[-Stealth,line width=0.8mm,draw={rgb:blue,4;red,1;green,1;black,3}] (-0.3,0) -- ++(0.3,0);}
 
@@ -29,26 +29,24 @@
         zlabel=64,
         fill=\ConvColor,
         height=64,
-        width=2,
+        width=1,
         depth=64
         }
     };
 
-\pic[shift={ (1,0,0) }] at (conv1-east) 
+\pic[shift={ (0,0,0) }] at (conv1-east) 
     {Box={
         name=pool1,
         caption= ,
         fill=\PoolColor,
         opacity=0.5,
         height=48,
-        width=2,
+        width=1,
         depth=48
         }
     };
 
-\draw [connection]  (conv1-east)    -- node {\midarrow} (pool1-west);
-
-\pic[shift={(0,0,0)}] at (pool1-east) 
+\pic[shift={(4,0,0)}] at (pool1-east) 
     {Box={
         name=conv2,
         caption=Conv2,
@@ -61,21 +59,21 @@
         }
     };
 
-\pic[shift={ (1,0,0) }] at (conv2-east) 
+\pic[shift={ (0,0,0) }] at (conv2-east) 
     {Box={
         name=pool2,
         caption=MaxPooling,
         fill=\PoolColor,
         opacity=0.5,
-        height=32,
-        width=4,
-        depth=32
+        height=30,
+        width=3,
+        depth=30
         }
     };
 
-\draw [connection]  (conv2-east)    -- node {\midarrow} (pool2-west);
+\draw [connection]  (pool1-east)    -- node {\midarrow} (conv2-west);
 
-\pic[shift={(2,0,0)}] at (pool2-east) 
+\pic[shift={(4,0,0)}] at (pool2-east) 
     {Box={
         name=conv3,
         caption=Flatten,

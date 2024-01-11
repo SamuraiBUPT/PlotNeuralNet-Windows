@@ -101,6 +101,7 @@ class TorchPlot:
     
     def generate(self, arch: List[str], filename: str):
         assert filename.endswith(".tex"), "filename must end with .tex"
+        
         # first we generate the tex file
         with open(filename, "w") as f: 
             for c in arch:
