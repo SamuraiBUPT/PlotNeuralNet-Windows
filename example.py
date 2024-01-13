@@ -95,7 +95,7 @@ def eval(model, test_loader, device):
         print(f'Accuracy of the network on the 10000 test images: {100 * correct / total} %')
     print("Evaluation complete")
     
-from neuplotlib import TorchPlot
+from neuplotlib import analyze_net, generate
     
 def test_infer(model, test_loader, device):
     model.eval()
@@ -108,8 +108,7 @@ def test_infer(model, test_loader, device):
             images = images.to(device)
             
             # test
-            tp = TorchPlot(config={})
-            tp.analyze_net(model, images)
+            fwd_layers = analyze_net(model, images)
             
             # outputs = model(images)
             # _, predicted = torch.max(outputs.data, 1)
@@ -166,12 +165,11 @@ if __name__ == '__main__':
     model.to(device)
     # Test the model
     
-    tp = TorchPlot(config={})
     with torch.no_grad():
         for images, labels in test_loader:
             images = images.to(device)
             
             # test
-            tp.analyze_net(model, images)
+            analyze_net(model, images)
             break
-    tp.generate(arch2, filename)
+    generate(arch2, filename)

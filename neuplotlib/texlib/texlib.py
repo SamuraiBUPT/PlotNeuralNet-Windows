@@ -229,6 +229,7 @@ def to_connection(src, dest) -> str:
 \draw [connection]  ("""+src+"""-east)    -- node {\midarrow} ("""+dest+"""-west);
 """
 
+
 def to_skip(src, dest, pos=1.25) -> str:
     return r"""
 \path ("""+ src +"""-southeast) -- ("""+ src +"""-northeast) coordinate[pos="""+ str(pos) +"""] ("""+ src +"""-top) ;
@@ -239,9 +240,15 @@ def to_skip(src, dest, pos=1.25) -> str:
 -- node {\copymidarrow} ("""+dest+"""-north);
 """
 
+
 def to_end() -> str:
     return r"""
 \end{tikzpicture}
 \end{document}
 """
 
+torch_to_texlib = {
+    "Conv2d": to_Conv,
+    "MaxPool2d": to_Pool,
+    "Linear": to_SoftMax
+}
